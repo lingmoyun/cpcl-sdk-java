@@ -10,7 +10,7 @@
 
     <name>cpcl-sdk-java</name>
     <url>https://github.com/lingmoyun/cpcl-sdk-java</url>
-    <description>The Java SDK For CPCL Instruction.</description>
+    <description>The CPCL Instruction SDK For Java.</description>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
