@@ -6,9 +6,9 @@
 
     <groupId>com.lingmoyun</groupId>
     <artifactId>cpcl-sdk-java</artifactId>
-    <version>0.0.1</version>
+    <version>0.1.0</version>
 
-    <name>cpcl-sdk-java</name>
+    <name>CPCL Instruction SDK For Java</name>
     <url>https://github.com/lingmoyun/cpcl-sdk-java</url>
     <description>The CPCL Instruction SDK For Java.</description>
 
@@ -45,6 +45,14 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.lingmoyun</groupId>
+            <artifactId>minilzo-java</artifactId>
+            <version>0.0.1</version>
+        </dependency>
+    </dependencies>
 
 
     <profiles>
