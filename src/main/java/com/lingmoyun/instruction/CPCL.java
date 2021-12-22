@@ -204,9 +204,8 @@ public class CPCL {
      * @return CPCL
      */
     public static byte[] imageCG(int x, int y, BufferedImage image) {
-        image = ImageUtils.formatImage(image);
         byte[] bitmap = ImageUtils.image2BitmapHex(image);
-        return merge(toBytes("CG " + image.getWidth() / 8 + " " + image.getHeight() + " " + x + " " + y + " "), bitmap, LINE_BYTES);
+        return merge(toBytes("CG " + ImageUtils.byteWidth(image.getWidth()) + " " + image.getHeight() + " " + x + " " + y + " "), bitmap, LINE_BYTES);
     }
 
     /**
@@ -230,9 +229,8 @@ public class CPCL {
      * @return CPCL
      */
     public static byte[] imageEG(int x, int y, BufferedImage image) {
-        image = ImageUtils.formatImage(image);
         byte[] bitmap = ImageUtils.image2BitmapAscii(image);
-        return merge(toBytes("EG " + image.getWidth() / 8 + " " + image.getHeight() + " " + x + " " + y + " "), bitmap, LINE_BYTES);
+        return merge(toBytes("EG " + ImageUtils.byteWidth(image.getWidth()) + " " + image.getHeight() + " " + x + " " + y + " "), bitmap, LINE_BYTES);
     }
 
     /**
@@ -286,11 +284,10 @@ public class CPCL {
      * @return CPCL
      */
     public static byte[] imageGG(int x, int y, int maxSize, BufferedImage image) {
-        image = ImageUtils.formatImage(image);
-
         int width = image.getWidth();
         int height = image.getHeight();
-        int maxHeight = maxSize * 8 / width; // maxSize / (width / 8)
+        int byteWidth = ImageUtils.byteWidth(width);
+        int maxHeight = maxSize / byteWidth; // maxSize / (width / 8)
         int imageCount = (int) Math.ceil(height * 1.0 / maxHeight);
 
         ByteArrayOutputStream instructions = new ByteArrayOutputStream();
@@ -300,7 +297,7 @@ public class CPCL {
             byte[] bitmap = ImageUtils.image2BitmapHex(subimage);
             byte[] bitmapCompressed = MiniLZO.compress(bitmap);
 
-            byte[] instruction = merge(toBytes("GG " + subimage.getWidth() / 8 + " " + subimage.getHeight() + " " + x + " " + (y + (maxHeight * n)) + " " + bitmapCompressed.length + " "), bitmapCompressed, LINE_BYTES);
+            byte[] instruction = merge(toBytes("GG " + byteWidth + " " + subimage.getHeight() + " " + x + " " + (y + (maxHeight * n)) + " " + bitmapCompressed.length + " "), bitmapCompressed, LINE_BYTES);
             instructions.write(instruction, 0, instruction.length);
         }
         return instructions.toByteArray();
@@ -359,6 +356,10 @@ public class CPCL {
      */
     static class ImageUtils {
 
+        public static int byteWidth(int width) {
+            return (width + 7) / 8;
+        }
+
         /**
          * image -> 十六进制图像数据(CG)
          *
@@ -370,12 +371,18 @@ public class CPCL {
             // BufferedImage图片转为矩阵
             int w = image.getWidth();
             int h = image.getHeight();
+            int byteWidth = byteWidth(w);
             for (int i = 0; i < h; i++) {
-                for (int j = 0; j < w / 8; j++) {
+                for (int j = 0; j < byteWidth; j++) {
                     int bin = 0;
                     for (int k = 0; k < 8; k++) {
-                        int rgb = image.getRGB(j * 8 + k, i);  //RGB
-                        bin = (bin << 1) + rgb2Bin(rgb);
+                        int x = j * 8 + k;
+
+                        bin = bin << 1;
+                        if (x < w) { // 未超出边界
+                            int rgb = image.getRGB(x, i);  //RGB
+                            bin += rgb2Bin(rgb);
+                        }
                     }
 
                     //CG指令
@@ -401,13 +408,19 @@ public class CPCL {
             // BufferedImage图片转为矩阵
             int w = image.getWidth();
             int h = image.getHeight();
+            int byteWidth = byteWidth(w);
             StringBuilder hex = new StringBuilder();
             for (int i = 0; i < h; i++) {
-                for (int j = 0; j < w / 8; j++) {
+                for (int j = 0; j < byteWidth; j++) {
                     int bin = 0;
                     for (int k = 0; k < 8; k++) {
-                        int rgb = image.getRGB(j * 8 + k, i);  //RGB
-                        bin = (bin << 1) + rgb2Bin(rgb);
+                        int x = j * 8 + k;
+
+                        bin = bin << 1;
+                        if (x < w) { // 未超出边界
+                            int rgb = image.getRGB(x, i);  //RGB
+                            bin += rgb2Bin(rgb);
+                        }
                     }
 
                     //EG指令
@@ -447,29 +460,6 @@ public class CPCL {
             } catch (IOException e) {
                 throw new IllegalArgumentException("read image error. " + filename);
             }
-        }
-
-        /**
-         * fix width
-         *
-         * @param source 图片
-         * @return fixed image
-         */
-        public static BufferedImage formatImage(BufferedImage source) {
-            int w = source.getWidth();
-            int h = source.getHeight();
-            if (w % 8 == 0) return source;
-
-            w = ((w + 7) / 8) * 8;
-
-            BufferedImage image = new BufferedImage(w, h, source.getType());
-            Graphics2D graphics = image.createGraphics();
-            graphics.setBackground(Color.WHITE);
-            graphics.fillRect(0, 0, w, h);
-            graphics.drawImage(source, 0, 0, null);
-            graphics.dispose();
-
-            return image;
         }
 
     }
