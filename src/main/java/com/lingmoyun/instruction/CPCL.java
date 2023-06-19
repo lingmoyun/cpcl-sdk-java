@@ -1,6 +1,7 @@
 package com.lingmoyun.instruction;
 
 import com.lingmoyun.minilzo.MiniLZO;
+import sun.nio.cs.ext.GBK;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -8,7 +9,6 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 
 /**
  * CPCL指令
@@ -22,16 +22,41 @@ public class CPCL {
     public static final String QR_CODE_ECC_L = "L";
 
     //"\r"->0D  "\n"->0A
-    private static final String LINE = "\n";
+    static final String LINE = "\n";
     //"\r"->0D  "\n"->0A
-    private static final byte[] LINE_BYTES = toBytes(LINE);
+    static final byte[] LINE_BYTES = toBytes(LINE);
+
+    /**
+     * 切纸，立即生效
+     *
+     * @param h 走纸h点后再切
+     * @return CPCL
+     */
+    public static byte[] cut(int h) {
+        return cut(h, -1);
+    }
+
+    /**
+     * 切纸，立即生效
+     *
+     * @param h    走纸h点后再切
+     * @param time 切纸时间，单位：ms
+     * @return CPCL
+     */
+    public static byte[] cut(int h, int time) {
+        if (time >= 0) {
+            return toBytes("CUT " + h + "," + time + "" + LINE);
+        } else {
+            return toBytes("CUT " + h + LINE);
+        }
+    }
 
     /**
      * 开始标签
      *
      * @param offset 偏移量
      * @param height 最大高度
-     * @param qty    打印分数
+     * @param qty    打印份数
      * @return CPCL
      */
     public static byte[] area(int offset, int height, int qty) {
@@ -42,13 +67,13 @@ public class CPCL {
      * 开始标签
      *
      * @param offset 偏移量
-     * @param width  宽度
+     * @param dpi    分辨率
      * @param height 最大高度
-     * @param qty    打印分数
+     * @param qty    打印份数
      * @return CPCL
      */
-    public static byte[] area(int offset, int width, int height, int qty) {
-        return merge(toBytes("! " + offset + " 203 203 " + height + " " + qty), LINE_BYTES, pageWidth(width));
+    public static byte[] area(int offset, int dpi, int height, int qty) {
+        return toBytes("! " + offset + " " + dpi + " " + dpi + " " + height + " " + qty + LINE);
     }
 
     public static byte[] pageWidth(int width) {
@@ -186,9 +211,9 @@ public class CPCL {
     /**
      * 图片指令CG
      *
-     * @param filename 文件路径
      * @param x        坐标x
      * @param y        坐标y
+     * @param filename 文件路径
      * @return CPCL
      */
     public static byte[] imageCG(int x, int y, String filename) {
@@ -198,22 +223,36 @@ public class CPCL {
     /**
      * 图片指令CG
      *
-     * @param image 图片
      * @param x     坐标x
      * @param y     坐标y
+     * @param image 图片
      * @return CPCL
      */
     public static byte[] imageCG(int x, int y, BufferedImage image) {
-        byte[] bitmap = ImageUtils.image2BitmapHex(image);
-        return merge(toBytes("CG " + ImageUtils.byteWidth(image.getWidth()) + " " + image.getHeight() + " " + x + " " + y + " "), bitmap, LINE_BYTES);
+        byte[] bitmap = ImageUtils.image2Bitmap(image);
+        return imageCG(image.getWidth(), image.getHeight(), x, y, bitmap);
+    }
+
+    /**
+     * 图片指令CG
+     *
+     * @param w      宽，单位：px
+     * @param h      高，单位：px
+     * @param x      坐标x
+     * @param y      坐标y
+     * @param bitmap 位图
+     * @return CPCL
+     */
+    public static byte[] imageCG(int w, int h, int x, int y, byte[] bitmap) {
+        return merge(toBytes("CG " + ImageUtils.byteWidth(w) + " " + h + " " + x + " " + y + " "), bitmap, LINE_BYTES);
     }
 
     /**
      * 图片指令EG
      *
-     * @param filename 文件路径
      * @param x        坐标x
      * @param y        坐标y
+     * @param filename 文件路径
      * @return CPCL
      */
     public static byte[] imageEG(int x, int y, String filename) {
@@ -223,23 +262,30 @@ public class CPCL {
     /**
      * 图片指令EG
      *
-     * @param image 图片
      * @param x     坐标x
      * @param y     坐标y
+     * @param image 图片
      * @return CPCL
      */
     public static byte[] imageEG(int x, int y, BufferedImage image) {
-        byte[] bitmap = ImageUtils.image2BitmapAscii(image);
-        return merge(toBytes("EG " + ImageUtils.byteWidth(image.getWidth()) + " " + image.getHeight() + " " + x + " " + y + " "), bitmap, LINE_BYTES);
+        byte[] bitmap = ImageUtils.image2Bitmap(image);
+
+        // byte数组转十六进制
+        StringBuilder builder = new StringBuilder();
+        for (byte b : bitmap)
+            builder.append(String.format("%02X", (b & 0xFF)));
+
+        byte[] bitmapHex = toBytes(builder.toString());
+        return merge(toBytes("EG " + ImageUtils.byteWidth(image.getWidth()) + " " + image.getHeight() + " " + x + " " + y + " "), bitmapHex, LINE_BYTES);
     }
 
     /**
      * 图片指令GG
-     * GG x y w h size lzo(CG data)
+     * GG w h x y size lzo(CG data)
      *
-     * @param filename 文件路径
      * @param x        坐标x
      * @param y        坐标y
+     * @param filename 文件路径
      * @return CPCL
      */
     public static byte[] imageGG(int x, int y, String filename) {
@@ -248,12 +294,12 @@ public class CPCL {
 
     /**
      * 图片指令GG
-     * GG x y w h size lzo(CG data)
+     * GG w h x y size lzo(CG data)
      *
-     * @param filename 文件路径
      * @param x        坐标x
      * @param y        坐标y
      * @param maxSize  压缩数据最大值
+     * @param filename 文件路径
      * @return CPCL
      */
     public static byte[] imageGG(int x, int y, int maxSize, String filename) {
@@ -264,9 +310,9 @@ public class CPCL {
      * 图片指令GG
      * GG x y w h size lzo(CG data)
      *
-     * @param image 图片
      * @param x     坐标x
      * @param y     坐标y
+     * @param image 图片
      * @return CPCL
      */
     public static byte[] imageGG(int x, int y, BufferedImage image) {
@@ -274,13 +320,13 @@ public class CPCL {
     }
 
     /**
-     * 图片指令GG
-     * GG x y w h size lzo(CG data)
+     * 图片指令GG优化
+     * GG w h x y size lzo(CG data)
      *
-     * @param image   图片
      * @param x       坐标x
      * @param y       坐标y
      * @param maxSize 压缩数据最大值
+     * @param image   图片
      * @return CPCL
      */
     public static byte[] imageGG(int x, int y, int maxSize, BufferedImage image) {
@@ -290,17 +336,49 @@ public class CPCL {
         int maxHeight = maxSize / byteWidth; // maxSize / (width / 8)
         int imageCount = (int) Math.ceil(height * 1.0 / maxHeight);
 
+        byte[] bitmap = ImageUtils.image2Bitmap(image);
+
         ByteArrayOutputStream instructions = new ByteArrayOutputStream();
         for (int n = 0; n < imageCount; n++) {
-            BufferedImage subimage = image.getSubimage(0, maxHeight * n, width, (n == imageCount - 1) ? height - maxHeight * n : maxHeight);
+            int subY = y + (maxHeight * n);
+            int subHeight = (n == imageCount - 1) ? height - maxHeight * n : maxHeight;
+            byte[] subBitmap = new byte[byteWidth * subHeight];
+            System.arraycopy(bitmap, maxHeight * n * byteWidth, subBitmap, 0, subBitmap.length);
 
-            byte[] bitmap = ImageUtils.image2BitmapHex(subimage);
-            byte[] bitmapCompressed = MiniLZO.compress(bitmap);
+            byte[] subBitmapCompressed = null;
+            try {
+                subBitmapCompressed = MiniLZO.compress(subBitmap);
+            } catch (Exception ignored) {
+            }
 
-            byte[] instruction = merge(toBytes("GG " + byteWidth + " " + subimage.getHeight() + " " + x + " " + (y + (maxHeight * n)) + " " + bitmapCompressed.length + " "), bitmapCompressed, LINE_BYTES);
+            byte[] instruction;
+            if (subBitmapCompressed == null || subBitmapCompressed.length == 0 || subBitmapCompressed.length >= subBitmap.length) {
+                // 压缩失败或者压缩后比源数据还大，则不使用GG指令
+                instruction = imageCG(width, subHeight, x, subY, subBitmap);
+            } else {
+                // 压缩成功，使用GG指令
+                instruction = imageGG(width, subHeight, x, subY, subBitmapCompressed);
+            }
+
             instructions.write(instruction, 0, instruction.length);
         }
+
         return instructions.toByteArray();
+    }
+
+    /**
+     * 图片指令GG
+     * GG w h x y size lzo(CG data)
+     *
+     * @param w                宽，单位：px
+     * @param h                高，单位：px
+     * @param x                坐标x
+     * @param y                坐标y
+     * @param bitmapCompressed 位图
+     * @return CPCL
+     */
+    public static byte[] imageGG(int w, int h, int x, int y, byte[] bitmapCompressed) {
+        return merge(toBytes("GG " + ImageUtils.byteWidth(w) + " " + h + " " + x + " " + y + " " + bitmapCompressed.length + " "), bitmapCompressed, LINE_BYTES);
     }
 
     /**
@@ -330,14 +408,8 @@ public class CPCL {
         return merge(form(), print());
     }
 
-    private static byte[] toBytes(String s) {
-        byte[] bytes;
-        try {
-            bytes = s.getBytes("gbk");
-        } catch (UnsupportedEncodingException e) {
-            bytes = s.getBytes();
-        }
-        return bytes;
+    static byte[] toBytes(String s) {
+        return s.getBytes(new GBK());
     }
 
     private static byte[] merge(byte[]... bytes) {
@@ -366,7 +438,7 @@ public class CPCL {
          * @param image 图片
          * @return 十六进制图像数据
          */
-        public static byte[] image2BitmapHex(BufferedImage image) {
+        public static byte[] image2Bitmap(BufferedImage image) {
             ByteArrayOutputStream bitmapHex = new ByteArrayOutputStream();
             // BufferedImage图片转为矩阵
             int w = image.getWidth();
@@ -399,39 +471,6 @@ public class CPCL {
         }
 
         /**
-         * image -> Ascii图像数据(EG)
-         *
-         * @param image 图片
-         * @return Ascii图像数据
-         */
-        public static byte[] image2BitmapAscii(BufferedImage image) {
-            // BufferedImage图片转为矩阵
-            int w = image.getWidth();
-            int h = image.getHeight();
-            int byteWidth = byteWidth(w);
-            StringBuilder hex = new StringBuilder();
-            for (int i = 0; i < h; i++) {
-                for (int j = 0; j < byteWidth; j++) {
-                    int bin = 0;
-                    for (int k = 0; k < 8; k++) {
-                        int x = j * 8 + k;
-
-                        bin = bin << 1;
-                        if (x < w) { // 未超出边界
-                            int rgb = image.getRGB(x, i);  //RGB
-                            bin += rgb2Bin(rgb);
-                        }
-                    }
-
-                    //EG指令
-                    hex.append(String.format("%02X", bin));
-                }
-            }
-
-            return hex.toString().toUpperCase().getBytes();
-        }
-
-        /**
          * 依次检查R、G、B是否超过阈值
          * 超过视为白色0，否则黑色1
          *
@@ -456,7 +495,16 @@ public class CPCL {
          */
         public static BufferedImage readImage(String filename) {
             try {
-                return ImageIO.read(new File(filename));
+                BufferedImage image = ImageIO.read(new File(filename));
+                // 非RGB色彩，转换为RGB色彩，否则会有问题，比如灰度图取RGB色值进行计算就会产生偏差
+                if (image.getType() != BufferedImage.TYPE_INT_RGB || image.getType() != BufferedImage.TYPE_INT_ARGB) {
+                    BufferedImage bimage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
+                    Graphics2D bGr = bimage.createGraphics();
+                    bGr.drawImage(image, 0, 0, null);
+                    bGr.dispose();
+                    return bimage;
+                }
+                return image;
             } catch (IOException e) {
                 throw new IllegalArgumentException("read image error. " + filename);
             }

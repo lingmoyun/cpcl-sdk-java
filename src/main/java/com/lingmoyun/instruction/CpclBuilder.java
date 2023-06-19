@@ -12,6 +12,15 @@ import java.io.ByteArrayOutputStream;
 public class CpclBuilder {
 
     /**
+     * 创建一个Builder
+     *
+     * @return CpclBuilder
+     */
+    public static CpclBuilder newBuilder() {
+        return new CpclBuilder();
+    }
+
+    /**
      * 标签开始指令
      *
      * @param offset 偏移量
@@ -20,8 +29,36 @@ public class CpclBuilder {
      * @param qty    打印数量
      * @return CpclBuilder
      */
+    @Deprecated
     public static CpclBuilder createAreaSize(int offset, int width, int height, int qty) {
-        return new CpclBuilder().area(offset, width, height, qty);
+        return newBuilder().area(offset, height, qty).pageWidth(width);
+    }
+
+    /**
+     * 标签开始指令
+     *
+     * @param offset 偏移量
+     * @param dpi    分辨率
+     * @param height 高
+     * @param qty    打印数量
+     * @return CpclBuilder
+     */
+    public static CpclBuilder createArea(int offset, int dpi, int height, int qty) {
+        return newBuilder().area(offset, dpi, height, qty);
+    }
+
+    /**
+     * 标签开始指令
+     *
+     * @param offset 偏移量
+     * @param dpi    分辨率
+     * @param width  宽
+     * @param height 高
+     * @param qty    打印数量
+     * @return CpclBuilder
+     */
+    public static CpclBuilder createArea(int offset, int dpi, int width, int height, int qty) {
+        return createArea(offset, dpi, height, qty).pageWidth(width);
     }
 
     private ByteArrayOutputStream baos;
@@ -30,12 +67,50 @@ public class CpclBuilder {
         baos = new ByteArrayOutputStream();
     }
 
+    /**
+     * 切纸，立即生效
+     *
+     * @param h 走纸h点后再切
+     * @return CpclBuilder
+     */
+    public CpclBuilder cut(int h) {
+        return append(CPCL.cut(h));
+    }
+
+    /**
+     * 切纸，立即生效
+     *
+     * @param h    走纸h点后再切
+     * @param time 切纸时间，单位：ms
+     * @return CpclBuilder
+     */
+    public CpclBuilder cut(int h, int time) {
+        return append(CPCL.cut(h, time));
+    }
+
+    /**
+     * 开始标签
+     *
+     * @param offset 偏移量
+     * @param height 最大高度
+     * @param qty    打印份数
+     * @return CpclBuilder
+     */
     public CpclBuilder area(int offset, int height, int qty) {
         return append(CPCL.area(offset, height, qty));
     }
 
-    public CpclBuilder area(int offset, int width, int height, int qty) {
-        return append(CPCL.area(offset, width, height, qty));
+    /**
+     * 开始标签
+     *
+     * @param offset 偏移量
+     * @param dpi    分辨率
+     * @param height 最大高度
+     * @param qty    打印份数
+     * @return CpclBuilder
+     */
+    public CpclBuilder area(int offset, int dpi, int height, int qty) {
+        return append(CPCL.area(offset, dpi, height, qty));
     }
 
     public CpclBuilder pageWidth(int width) {
@@ -153,9 +228,9 @@ public class CpclBuilder {
     /**
      * 图片指令CG
      *
-     * @param filename 文件路径
      * @param x        坐标x
      * @param y        坐标y
+     * @param filename 文件路径
      * @return CPCL
      */
     public CpclBuilder imageCG(int x, int y, String filename) {
@@ -165,9 +240,9 @@ public class CpclBuilder {
     /**
      * 图片指令CG
      *
-     * @param image 图片
      * @param x     坐标x
      * @param y     坐标y
+     * @param image 图片
      * @return CPCL
      */
     public CpclBuilder imageCG(int x, int y, BufferedImage image) {
@@ -177,9 +252,9 @@ public class CpclBuilder {
     /**
      * 图片指令EG
      *
-     * @param filename 文件路径
      * @param x        坐标x
      * @param y        坐标y
+     * @param filename 文件路径
      * @return CPCL
      */
     public CpclBuilder imageEG(int x, int y, String filename) {
@@ -189,9 +264,9 @@ public class CpclBuilder {
     /**
      * 图片指令EG
      *
-     * @param image 图片
      * @param x     坐标x
      * @param y     坐标y
+     * @param image 图片
      * @return CpclBuilder
      */
     public CpclBuilder imageEG(int x, int y, BufferedImage image) {
@@ -202,9 +277,9 @@ public class CpclBuilder {
      * 图片指令GG
      * GG x y w h size lzo(CG data)
      *
-     * @param filename 文件路径
      * @param x        坐标x
      * @param y        坐标y
+     * @param filename 文件路径
      * @return CPCL
      */
     public CpclBuilder imageGG(int x, int y, String filename) {
@@ -215,10 +290,10 @@ public class CpclBuilder {
      * 图片指令GG
      * GG x y w h size lzo(CG data)
      *
-     * @param filename 文件路径
      * @param x        坐标x
      * @param y        坐标y
      * @param maxSize  压缩数据最大值
+     * @param filename 文件路径
      * @return CPCL
      */
     public CpclBuilder imageGG(int x, int y, int maxSize, String filename) {
@@ -229,9 +304,9 @@ public class CpclBuilder {
      * 图片指令GG
      * GG x y w h size lzo(CG data)
      *
-     * @param image 图片
      * @param x     坐标x
      * @param y     坐标y
+     * @param image 图片
      * @return CPCL
      */
     public CpclBuilder imageGG(int x, int y, BufferedImage image) {
@@ -242,10 +317,10 @@ public class CpclBuilder {
      * 图片指令GG
      * GG x y w h size lzo(CG data)
      *
-     * @param image   图片
      * @param x       坐标x
      * @param y       坐标y
      * @param maxSize 压缩数据最大值
+     * @param image   图片
      * @return CPCL
      */
     public CpclBuilder imageGG(int x, int y, int maxSize, BufferedImage image) {
@@ -264,13 +339,21 @@ public class CpclBuilder {
         return append(CPCL.formPrint());
     }
 
-    public byte[] build() {
-        return baos.toByteArray();
+    public CpclBuilder append(String str) {
+        return append(CPCL.toBytes(str));
     }
 
-    private CpclBuilder append(byte[] bytes) {
+    public CpclBuilder appendln(String str) {
+        return append(str).append(CPCL.LINE_BYTES);
+    }
+
+    public CpclBuilder append(byte[] bytes) {
         baos.write(bytes, 0, bytes.length);
         return this;
+    }
+
+    public byte[] build() {
+        return baos.toByteArray();
     }
 
 }

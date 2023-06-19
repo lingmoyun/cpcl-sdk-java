@@ -6,7 +6,7 @@
 
     <groupId>com.lingmoyun</groupId>
     <artifactId>cpcl-sdk-java</artifactId>
-    <version>0.1.0</version>
+    <version>0.1.1</version>
 
     <name>CPCL Instruction SDK For Java</name>
     <url>https://github.com/lingmoyun/cpcl-sdk-java</url>

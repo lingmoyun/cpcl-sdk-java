@@ -21,14 +21,25 @@ CPCL指令SDK Java版
 <dependency>
     <groupId>com.lingmoyun</groupId>
     <artifactId>cpcl-sdk-java</artifactId>
-    <version>0.1.0</version>
+    <version>0.1.1</version>
 </dependency>
 ```
 
-## 演示 Demo
+## Quick Start
 
-为了演示如何使用，openapi-sdk-java 项目`src/test`下提供了演示用的 example 。
+```java
+byte[] cpcl = CpclBuilder.createArea(0, 203, 1680, 2374, 1) // 203DPI
+        .text(0, 0, 500, 100, "Hello World!")
+        .line(100, 100, 300, 100, 1)
+        .barCode(1, 1, 100, 100, 400, "A43009200005")
+        .qrCode(100, 600, "https://github.com/lingmoyun/cpcl-sdk-java")
+        .imageEG(100, 800, "/path/to/test.jpg")
+        .imageCG(400, 800, ImageIO.read(Files.newInputStream(Paths.get("/path/to/test.jpg"))))
+        .formPrint()
+        .build();
+```
 
+## More
 
-[Example](https://github.com/lingmoyun/cpcl-sdk-java/blob/main/src/test/java/com/lingmoyun/example/CpclExample.java)
+更多用法，见 [Example](https://github.com/lingmoyun/cpcl-sdk-java/blob/main/src/test/java/com/lingmoyun/example/CpclExample.java) 。
 
