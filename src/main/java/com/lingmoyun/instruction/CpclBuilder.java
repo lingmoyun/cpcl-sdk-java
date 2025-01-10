@@ -227,11 +227,12 @@ public class CpclBuilder {
 
     /**
      * 图片指令CG
+     * CG w h x y data
      *
      * @param x        坐标x
      * @param y        坐标y
      * @param filename 文件路径
-     * @return CPCL
+     * @return CpclBuilder
      */
     public CpclBuilder imageCG(int x, int y, String filename) {
         return append(CPCL.imageCG(x, y, filename));
@@ -239,11 +240,12 @@ public class CpclBuilder {
 
     /**
      * 图片指令CG
+     * CG w h x y data
      *
      * @param x     坐标x
      * @param y     坐标y
      * @param image 图片
-     * @return CPCL
+     * @return CpclBuilder
      */
     public CpclBuilder imageCG(int x, int y, BufferedImage image) {
         return append(CPCL.imageCG(x, y, image));
@@ -251,11 +253,12 @@ public class CpclBuilder {
 
     /**
      * 图片指令EG
+     * EG w h x y data
      *
      * @param x        坐标x
      * @param y        坐标y
      * @param filename 文件路径
-     * @return CPCL
+     * @return CpclBuilder
      */
     public CpclBuilder imageEG(int x, int y, String filename) {
         return append(CPCL.imageEG(x, y, filename));
@@ -263,6 +266,7 @@ public class CpclBuilder {
 
     /**
      * 图片指令EG
+     * EG w h x y data
      *
      * @param x     坐标x
      * @param y     坐标y
@@ -275,12 +279,12 @@ public class CpclBuilder {
 
     /**
      * 图片指令GG
-     * GG x y w h size lzo(CG data)
+     * GG w h x y size lzo(CG data)
      *
      * @param x        坐标x
      * @param y        坐标y
      * @param filename 文件路径
-     * @return CPCL
+     * @return CpclBuilder
      */
     public CpclBuilder imageGG(int x, int y, String filename) {
         return append(CPCL.imageGG(x, y, filename));
@@ -288,13 +292,13 @@ public class CpclBuilder {
 
     /**
      * 图片指令GG
-     * GG x y w h size lzo(CG data)
+     * GG w h x y size lzo(CG data)
      *
      * @param x        坐标x
      * @param y        坐标y
      * @param maxSize  压缩数据最大值
      * @param filename 文件路径
-     * @return CPCL
+     * @return CpclBuilder
      */
     public CpclBuilder imageGG(int x, int y, int maxSize, String filename) {
         return append(CPCL.imageGG(x, y, maxSize, filename));
@@ -302,12 +306,12 @@ public class CpclBuilder {
 
     /**
      * 图片指令GG
-     * GG x y w h size lzo(CG data)
+     * GG w h x y size lzo(CG data)
      *
      * @param x     坐标x
      * @param y     坐标y
      * @param image 图片
-     * @return CPCL
+     * @return CpclBuilder
      */
     public CpclBuilder imageGG(int x, int y, BufferedImage image) {
         return append(CPCL.imageGG(x, y, image));
@@ -315,13 +319,13 @@ public class CpclBuilder {
 
     /**
      * 图片指令GG
-     * GG x y w h size lzo(CG data)
+     * GG w h x y size lzo(CG data)
      *
      * @param x       坐标x
      * @param y       坐标y
      * @param maxSize 压缩数据最大值
      * @param image   图片
-     * @return CPCL
+     * @return CpclBuilder
      */
     public CpclBuilder imageGG(int x, int y, int maxSize, BufferedImage image) {
         return append(CPCL.imageGG(x, y, maxSize, image));
@@ -352,6 +356,11 @@ public class CpclBuilder {
         return this;
     }
 
+    /**
+     * 构建CPCL
+     *
+     * @return CPCL
+     */
     public byte[] build() {
         return baos.toByteArray();
     }

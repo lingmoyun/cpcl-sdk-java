@@ -210,6 +210,7 @@ public class CPCL {
 
     /**
      * 图片指令CG
+     * CG w h x y data
      *
      * @param x        坐标x
      * @param y        坐标y
@@ -222,6 +223,7 @@ public class CPCL {
 
     /**
      * 图片指令CG
+     * CG w h x y data
      *
      * @param x     坐标x
      * @param y     坐标y
@@ -235,6 +237,7 @@ public class CPCL {
 
     /**
      * 图片指令CG
+     * CG w h x y data
      *
      * @param w      宽，单位：px
      * @param h      高，单位：px
@@ -249,6 +252,7 @@ public class CPCL {
 
     /**
      * 图片指令EG
+     * EG w h x y data
      *
      * @param x        坐标x
      * @param y        坐标y
@@ -261,6 +265,7 @@ public class CPCL {
 
     /**
      * 图片指令EG
+     * EG w h x y data
      *
      * @param x     坐标x
      * @param y     坐标y
@@ -308,7 +313,7 @@ public class CPCL {
 
     /**
      * 图片指令GG
-     * GG x y w h size lzo(CG data)
+     * GG w h x y size lzo(CG data)
      *
      * @param x     坐标x
      * @param y     坐标y
@@ -433,41 +438,39 @@ public class CPCL {
         }
 
         /**
-         * image -> 十六进制图像数据(CG)
+         * image -> bitmap(CG Data)
          *
          * @param image 图片
-         * @return 十六进制图像数据
+         * @return bitmap
          */
         public static byte[] image2Bitmap(BufferedImage image) {
-            ByteArrayOutputStream bitmapHex = new ByteArrayOutputStream();
             // BufferedImage图片转为矩阵
             int w = image.getWidth();
             int h = image.getHeight();
             int byteWidth = byteWidth(w);
-            for (int i = 0; i < h; i++) {
-                for (int j = 0; j < byteWidth; j++) {
+
+            int[] pixels = new int[w * h];
+            image.getRGB(0, 0, w, h, pixels, 0, w);
+
+            byte[] bitmap = new byte[byteWidth * h];
+            for (int y = 0; y < h; y++) {
+                for (int bx = 0; bx < byteWidth; bx++) {
                     int bin = 0;
                     for (int k = 0; k < 8; k++) {
-                        int x = j * 8 + k;
+                        int x = bx * 8 + k;
 
                         bin = bin << 1;
                         if (x < w) { // 未超出边界
-                            int rgb = image.getRGB(x, i);  //RGB
+                            int rgb = pixels[y * w + x];
                             bin += rgb2Bin(rgb);
                         }
                     }
 
-                    //CG指令
-                    bitmapHex.write(bin);
+                    //CG Data
+                    bitmap[y * byteWidth + bx] = (byte) bin;
                 }
             }
-            try {
-                bitmapHex.flush();
-                bitmapHex.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return bitmapHex.toByteArray();
+            return bitmap;
         }
 
         /**
