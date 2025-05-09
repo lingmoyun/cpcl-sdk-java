@@ -28,6 +28,17 @@ CPCL指令SDK Java版
 ## Quick Start
 
 ```java
+// A4系列机器
+byte[] cpcl = CpclBuilder.createArea(0, 203, 1680, 2374, 1) // 203DPI
+        //.imageGG(0, 0, "/path/to/test.jpg")
+        .imageGG(0, 0, ImageIO.read(Files.newInputStream(Paths.get("/path/to/test.jpg"))))
+        .formPrint()
+        .cut(0) // 切刀指令，切纸，无切刀机器不受影响
+        .build();
+```
+
+```java
+// 面单、票据系列机器
 byte[] cpcl = CpclBuilder.createArea(0, 203, 1680, 2374, 1) // 203DPI
         .text(0, 0, 500, 100, "Hello World!")
         .line(100, 100, 300, 100, 1)
