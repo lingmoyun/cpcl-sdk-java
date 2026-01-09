@@ -21,13 +21,25 @@ CPCL指令SDK Java版
 <dependency>
     <groupId>com.lingmoyun</groupId>
     <artifactId>cpcl-sdk-java</artifactId>
-    <version>0.1.1</version>
+    <version>0.2.0</version>
 </dependency>
 ```
 
 ## Quick Start
 
 ```java
+// A4系列机器
+byte[] cpcl = CpclBuilder.createArea(0, 203, 1680, 2374, 1) // 203DPI
+        //.taskId("1") // 任务ID，这里传什么，打印结果就会携带什么，如果不需要打印结果注释这一行即可
+        //.imageGG(0, 0, "/path/to/test.jpg")
+        .imageGG(0, 0, ImageIO.read(Files.newInputStream(Paths.get("/path/to/test.jpg"))))
+        .formPrint()
+        .cut(0) // 切刀指令，切纸，无切刀机器不受影响
+        .build();
+```
+
+```java
+// 面单、票据系列机器
 byte[] cpcl = CpclBuilder.createArea(0, 203, 1680, 2374, 1) // 203DPI
         .text(0, 0, 500, 100, "Hello World!")
         .line(100, 100, 300, 100, 1)

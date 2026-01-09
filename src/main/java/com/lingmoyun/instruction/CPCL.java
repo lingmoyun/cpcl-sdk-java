@@ -20,6 +20,7 @@ public class CPCL {
     public static final String QR_CODE_ECC_Q = "Q";
     public static final String QR_CODE_ECC_M = "M";
     public static final String QR_CODE_ECC_L = "L";
+    public static final int DEFAULT_THRESHOLD = 128;
 
     //"\r"->0D  "\n"->0A
     static final String LINE = "\n";
@@ -78,6 +79,16 @@ public class CPCL {
 
     public static byte[] pageWidth(int width) {
         return toBytes("PW " + width + LINE);
+    }
+
+    /**
+     * 任务ID，打印结果上报时会原样返回，部分打印机支持
+     *
+     * @param taskId 任务ID
+     * @return CPCL
+     */
+    public static byte[] taskId(String taskId) {
+        return toBytes("TASKID " + taskId + LINE);
     }
 
     public static byte[] density(int density) {
@@ -210,6 +221,7 @@ public class CPCL {
 
     /**
      * 图片指令CG
+     * CG w h x y data
      *
      * @param x        坐标x
      * @param y        坐标y
@@ -217,11 +229,26 @@ public class CPCL {
      * @return CPCL
      */
     public static byte[] imageCG(int x, int y, String filename) {
-        return imageCG(x, y, ImageUtils.readImage(filename));
+        return imageCG(x, y, filename, null);
     }
 
     /**
      * 图片指令CG
+     * CG w h x y data
+     *
+     * @param x         坐标x
+     * @param y         坐标y
+     * @param filename  文件路径
+     * @param threshold 黑白阈值，取值范围0-255，默认128
+     * @return CPCL
+     */
+    public static byte[] imageCG(int x, int y, String filename, Integer threshold) {
+        return imageCG(x, y, ImageUtils.readImage(filename), threshold);
+    }
+
+    /**
+     * 图片指令CG
+     * CG w h x y data
      *
      * @param x     坐标x
      * @param y     坐标y
@@ -229,12 +256,27 @@ public class CPCL {
      * @return CPCL
      */
     public static byte[] imageCG(int x, int y, BufferedImage image) {
-        byte[] bitmap = ImageUtils.image2Bitmap(image);
+        return imageCG(x, y, image, null);
+    }
+
+    /**
+     * 图片指令CG
+     * CG w h x y data
+     *
+     * @param x         坐标x
+     * @param y         坐标y
+     * @param image     图片
+     * @param threshold 黑白阈值，取值范围0-255，默认128
+     * @return CPCL
+     */
+    public static byte[] imageCG(int x, int y, BufferedImage image, Integer threshold) {
+        byte[] bitmap = ImageUtils.image2Bitmap(image, threshold);
         return imageCG(image.getWidth(), image.getHeight(), x, y, bitmap);
     }
 
     /**
      * 图片指令CG
+     * CG w h x y data
      *
      * @param w      宽，单位：px
      * @param h      高，单位：px
@@ -249,6 +291,7 @@ public class CPCL {
 
     /**
      * 图片指令EG
+     * EG w h x y data
      *
      * @param x        坐标x
      * @param y        坐标y
@@ -256,11 +299,26 @@ public class CPCL {
      * @return CPCL
      */
     public static byte[] imageEG(int x, int y, String filename) {
-        return imageEG(x, y, ImageUtils.readImage(filename));
+        return imageEG(x, y, filename, null);
     }
 
     /**
      * 图片指令EG
+     * EG w h x y data
+     *
+     * @param x         坐标x
+     * @param y         坐标y
+     * @param filename  文件路径
+     * @param threshold 黑白阈值，取值范围0-255，默认128
+     * @return CPCL
+     */
+    public static byte[] imageEG(int x, int y, String filename, Integer threshold) {
+        return imageEG(x, y, ImageUtils.readImage(filename), threshold);
+    }
+
+    /**
+     * 图片指令EG
+     * EG w h x y data
      *
      * @param x     坐标x
      * @param y     坐标y
@@ -268,7 +326,21 @@ public class CPCL {
      * @return CPCL
      */
     public static byte[] imageEG(int x, int y, BufferedImage image) {
-        byte[] bitmap = ImageUtils.image2Bitmap(image);
+        return imageEG(x, y, image, null);
+    }
+
+    /**
+     * 图片指令EG
+     * EG w h x y data
+     *
+     * @param x         坐标x
+     * @param y         坐标y
+     * @param image     图片
+     * @param threshold 黑白阈值，取值范围0-255，默认128
+     * @return CPCL
+     */
+    public static byte[] imageEG(int x, int y, BufferedImage image, Integer threshold) {
+        byte[] bitmap = ImageUtils.image2Bitmap(image, threshold);
 
         // byte数组转十六进制
         StringBuilder builder = new StringBuilder();
@@ -289,7 +361,21 @@ public class CPCL {
      * @return CPCL
      */
     public static byte[] imageGG(int x, int y, String filename) {
-        return imageGG(x, y, ImageUtils.readImage(filename));
+        return imageGG(x, y, filename, null);
+    }
+
+    /**
+     * 图片指令GG
+     * GG w h x y size lzo(CG data)
+     *
+     * @param x         坐标x
+     * @param y         坐标y
+     * @param filename  文件路径
+     * @param threshold 黑白阈值，取值范围0-255，默认128
+     * @return CPCL
+     */
+    public static byte[] imageGG(int x, int y, String filename, Integer threshold) {
+        return imageGG(x, y, ImageUtils.readImage(filename), threshold);
     }
 
     /**
@@ -303,12 +389,27 @@ public class CPCL {
      * @return CPCL
      */
     public static byte[] imageGG(int x, int y, int maxSize, String filename) {
-        return imageGG(x, y, maxSize, ImageUtils.readImage(filename));
+        return imageGG(x, y, maxSize, filename, null);
     }
 
     /**
      * 图片指令GG
-     * GG x y w h size lzo(CG data)
+     * GG w h x y size lzo(CG data)
+     *
+     * @param x         坐标x
+     * @param y         坐标y
+     * @param maxSize   压缩数据最大值
+     * @param filename  文件路径
+     * @param threshold 黑白阈值，取值范围0-255，默认128
+     * @return CPCL
+     */
+    public static byte[] imageGG(int x, int y, int maxSize, String filename, Integer threshold) {
+        return imageGG(x, y, maxSize, ImageUtils.readImage(filename), threshold);
+    }
+
+    /**
+     * 图片指令GG
+     * GG w h x y size lzo(CG data)
      *
      * @param x     坐标x
      * @param y     坐标y
@@ -316,7 +417,21 @@ public class CPCL {
      * @return CPCL
      */
     public static byte[] imageGG(int x, int y, BufferedImage image) {
-        return imageGG(x, y, 4096, image);
+        return imageGG(x, y, image, null);
+    }
+
+    /**
+     * 图片指令GG
+     * GG w h x y size lzo(CG data)
+     *
+     * @param x         坐标x
+     * @param y         坐标y
+     * @param image     图片
+     * @param threshold 黑白阈值，取值范围0-255，默认128
+     * @return CPCL
+     */
+    public static byte[] imageGG(int x, int y, BufferedImage image, Integer threshold) {
+        return imageGG(x, y, 4096, image, threshold);
     }
 
     /**
@@ -330,13 +445,28 @@ public class CPCL {
      * @return CPCL
      */
     public static byte[] imageGG(int x, int y, int maxSize, BufferedImage image) {
+        return imageGG(x, y, maxSize, image, null);
+    }
+
+    /**
+     * 图片指令GG优化
+     * GG w h x y size lzo(CG data)
+     *
+     * @param x         坐标x
+     * @param y         坐标y
+     * @param maxSize   压缩数据最大值
+     * @param image     图片
+     * @param threshold 黑白阈值，取值范围0-255，默认128
+     * @return CPCL
+     */
+    public static byte[] imageGG(int x, int y, int maxSize, BufferedImage image, Integer threshold) {
         int width = image.getWidth();
         int height = image.getHeight();
         int byteWidth = ImageUtils.byteWidth(width);
         int maxHeight = maxSize / byteWidth; // maxSize / (width / 8)
         int imageCount = (int) Math.ceil(height * 1.0 / maxHeight);
 
-        byte[] bitmap = ImageUtils.image2Bitmap(image);
+        byte[] bitmap = ImageUtils.image2Bitmap(image, threshold);
 
         ByteArrayOutputStream instructions = new ByteArrayOutputStream();
         for (int n = 0; n < imageCount; n++) {
@@ -433,58 +563,58 @@ public class CPCL {
         }
 
         /**
-         * image -> 十六进制图像数据(CG)
+         * image -> bitmap(CG Data)
          *
-         * @param image 图片
-         * @return 十六进制图像数据
+         * @param image     图片
+         * @param threshold 黑白阈值，取值范围0-255，默认128
+         * @return bitmap
          */
-        public static byte[] image2Bitmap(BufferedImage image) {
-            ByteArrayOutputStream bitmapHex = new ByteArrayOutputStream();
+        public static byte[] image2Bitmap(BufferedImage image, Integer threshold) {
             // BufferedImage图片转为矩阵
             int w = image.getWidth();
             int h = image.getHeight();
             int byteWidth = byteWidth(w);
-            for (int i = 0; i < h; i++) {
-                for (int j = 0; j < byteWidth; j++) {
+
+            int[] pixels = new int[w * h];
+            image.getRGB(0, 0, w, h, pixels, 0, w);
+
+            byte[] bitmap = new byte[byteWidth * h];
+            for (int y = 0; y < h; y++) {
+                for (int bx = 0; bx < byteWidth; bx++) {
                     int bin = 0;
                     for (int k = 0; k < 8; k++) {
-                        int x = j * 8 + k;
+                        int x = bx * 8 + k;
 
                         bin = bin << 1;
                         if (x < w) { // 未超出边界
-                            int rgb = image.getRGB(x, i);  //RGB
-                            bin += rgb2Bin(rgb);
+                            int rgb = pixels[y * w + x];
+                            bin += rgb2Bin(rgb, threshold);
                         }
                     }
 
-                    //CG指令
-                    bitmapHex.write(bin);
+                    //CG Data
+                    bitmap[y * byteWidth + bx] = (byte) bin;
                 }
             }
-            try {
-                bitmapHex.flush();
-                bitmapHex.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return bitmapHex.toByteArray();
+            return bitmap;
         }
 
         /**
          * 依次检查R、G、B是否超过阈值
          * 超过视为白色0，否则黑色1
          *
-         * @param rgb rgb
+         * @param rgb       rgb
+         * @param threshold 黑白阈值，取值范围0-255，默认128
          * @return 0 or 1
          */
-        private static int rgb2Bin(int rgb) {
+        private static int rgb2Bin(int rgb, Integer threshold) {
             int r = (rgb & 0x00ff0000) >> 16;
             int g = (rgb & 0x0000ff00) >> 8;
             int b = (rgb & 0x000000ff);
 
             //rgb2Grey
             int grey = (r * 38 + g * 75 + b * 15) >> 7;
-            return grey > 0xff / 2 ? 0 : 1;
+            return grey > (threshold == null ? DEFAULT_THRESHOLD : threshold) ? 0 : 1;
         }
 
         /**

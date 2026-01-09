@@ -26,6 +26,7 @@ public class CpclExample {
         // 快捷构建
         //byte[] cpcl = CpclBuilder.createArea(0, 300, 2480, 3508, 1) // 300DPI
         byte[] cpcl = CpclBuilder.createArea(0, 203, 1680, 2374, 1) // 203DPI
+                // .taskId("1") // 任务ID，部分机型支持，这里传什么，打印结果就会携带什么，如果不需要打印结果注释这一行即可
                 .text(0, 0, 500, 100, "Hello World!")
                 .text(0, 0, 520, 150, "Hello World!")
                 .text(0, 0, 540, 200, "Hello World!")
