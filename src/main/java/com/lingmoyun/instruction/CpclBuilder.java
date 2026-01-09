@@ -117,6 +117,10 @@ public class CpclBuilder {
         return append(CPCL.pageWidth(width));
     }
 
+    public CpclBuilder taskId(String taskId) {
+        return append(CPCL.taskId(taskId));
+    }
+
     public CpclBuilder density(int density) {
         return append(CPCL.density(density));
     }
@@ -242,6 +246,20 @@ public class CpclBuilder {
      * 图片指令CG
      * CG w h x y data
      *
+     * @param x         坐标x
+     * @param y         坐标y
+     * @param filename  文件路径
+     * @param threshold 黑白阈值，取值范围0-255，默认128
+     * @return CpclBuilder
+     */
+    public CpclBuilder imageCG(int x, int y, String filename, Integer threshold) {
+        return append(CPCL.imageCG(x, y, filename, threshold));
+    }
+
+    /**
+     * 图片指令CG
+     * CG w h x y data
+     *
      * @param x     坐标x
      * @param y     坐标y
      * @param image 图片
@@ -249,6 +267,20 @@ public class CpclBuilder {
      */
     public CpclBuilder imageCG(int x, int y, BufferedImage image) {
         return append(CPCL.imageCG(x, y, image));
+    }
+
+    /**
+     * 图片指令CG
+     * CG w h x y data
+     *
+     * @param x         坐标x
+     * @param y         坐标y
+     * @param image     图片
+     * @param threshold 黑白阈值，取值范围0-255，默认128
+     * @return CpclBuilder
+     */
+    public CpclBuilder imageCG(int x, int y, BufferedImage image, Integer threshold) {
+        return append(CPCL.imageCG(x, y, image, threshold));
     }
 
     /**
@@ -268,6 +300,20 @@ public class CpclBuilder {
      * 图片指令EG
      * EG w h x y data
      *
+     * @param x         坐标x
+     * @param y         坐标y
+     * @param filename  文件路径
+     * @param threshold 黑白阈值，取值范围0-255，默认128
+     * @return CpclBuilder
+     */
+    public CpclBuilder imageEG(int x, int y, String filename, Integer threshold) {
+        return append(CPCL.imageEG(x, y, filename, threshold));
+    }
+
+    /**
+     * 图片指令EG
+     * EG w h x y data
+     *
      * @param x     坐标x
      * @param y     坐标y
      * @param image 图片
@@ -275,6 +321,20 @@ public class CpclBuilder {
      */
     public CpclBuilder imageEG(int x, int y, BufferedImage image) {
         return append(CPCL.imageEG(x, y, image));
+    }
+
+    /**
+     * 图片指令EG
+     * EG w h x y data
+     *
+     * @param x         坐标x
+     * @param y         坐标y
+     * @param image     图片
+     * @param threshold 黑白阈值，取值范围0-255，默认128
+     * @return CpclBuilder
+     */
+    public CpclBuilder imageEG(int x, int y, BufferedImage image, Integer threshold) {
+        return append(CPCL.imageEG(x, y, image, threshold));
     }
 
     /**
@@ -288,6 +348,20 @@ public class CpclBuilder {
      */
     public CpclBuilder imageGG(int x, int y, String filename) {
         return append(CPCL.imageGG(x, y, filename));
+    }
+
+    /**
+     * 图片指令GG
+     * GG w h x y size lzo(CG data)
+     *
+     * @param x         坐标x
+     * @param y         坐标y
+     * @param filename  文件路径
+     * @param threshold 黑白阈值，取值范围0-255，默认128
+     * @return CpclBuilder
+     */
+    public CpclBuilder imageGG(int x, int y, String filename, Integer threshold) {
+        return append(CPCL.imageGG(x, y, filename, threshold));
     }
 
     /**
@@ -308,6 +382,21 @@ public class CpclBuilder {
      * 图片指令GG
      * GG w h x y size lzo(CG data)
      *
+     * @param x         坐标x
+     * @param y         坐标y
+     * @param maxSize   压缩数据最大值
+     * @param filename  文件路径
+     * @param threshold 黑白阈值，取值范围0-255，默认128
+     * @return CpclBuilder
+     */
+    public CpclBuilder imageGG(int x, int y, int maxSize, String filename, Integer threshold) {
+        return append(CPCL.imageGG(x, y, maxSize, filename, threshold));
+    }
+
+    /**
+     * 图片指令GG
+     * GG w h x y size lzo(CG data)
+     *
      * @param x     坐标x
      * @param y     坐标y
      * @param image 图片
@@ -315,6 +404,20 @@ public class CpclBuilder {
      */
     public CpclBuilder imageGG(int x, int y, BufferedImage image) {
         return append(CPCL.imageGG(x, y, image));
+    }
+
+    /**
+     * 图片指令GG
+     * GG w h x y size lzo(CG data)
+     *
+     * @param x         坐标x
+     * @param y         坐标y
+     * @param image     图片
+     * @param threshold 黑白阈值，取值范围0-255，默认128
+     * @return CpclBuilder
+     */
+    public CpclBuilder imageGG(int x, int y, BufferedImage image, Integer threshold) {
+        return append(CPCL.imageGG(x, y, image, threshold));
     }
 
     /**
@@ -329,6 +432,21 @@ public class CpclBuilder {
      */
     public CpclBuilder imageGG(int x, int y, int maxSize, BufferedImage image) {
         return append(CPCL.imageGG(x, y, maxSize, image));
+    }
+
+    /**
+     * 图片指令GG
+     * GG w h x y size lzo(CG data)
+     *
+     * @param x         坐标x
+     * @param y         坐标y
+     * @param maxSize   压缩数据最大值
+     * @param image     图片
+     * @param threshold 黑白阈值，取值范围0-255，默认128
+     * @return CpclBuilder
+     */
+    public CpclBuilder imageGG(int x, int y, int maxSize, BufferedImage image, Integer threshold) {
+        return append(CPCL.imageGG(x, y, maxSize, image, threshold));
     }
 
     public CpclBuilder form() {

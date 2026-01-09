@@ -21,7 +21,7 @@ CPCL指令SDK Java版
 <dependency>
     <groupId>com.lingmoyun</groupId>
     <artifactId>cpcl-sdk-java</artifactId>
-    <version>0.1.1</version>
+    <version>0.2.0</version>
 </dependency>
 ```
 
@@ -30,6 +30,7 @@ CPCL指令SDK Java版
 ```java
 // A4系列机器
 byte[] cpcl = CpclBuilder.createArea(0, 203, 1680, 2374, 1) // 203DPI
+        //.taskId("1") // 任务ID，这里传什么，打印结果就会携带什么，如果不需要打印结果注释这一行即可
         //.imageGG(0, 0, "/path/to/test.jpg")
         .imageGG(0, 0, ImageIO.read(Files.newInputStream(Paths.get("/path/to/test.jpg"))))
         .formPrint()
