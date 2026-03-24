@@ -1,7 +1,6 @@
 package com.lingmoyun.instruction;
 
 import com.lingmoyun.minilzo.MiniLZO;
-import sun.nio.cs.ext.GBK;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -9,6 +8,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 
 /**
  * CPCL指令
@@ -539,7 +539,11 @@ public class CPCL {
     }
 
     static byte[] toBytes(String s) {
-        return s.getBytes(new GBK());
+        try {
+            return s.getBytes("GBK");
+        } catch (UnsupportedEncodingException e) {
+            return s.getBytes();
+        }
     }
 
     private static byte[] merge(byte[]... bytes) {
