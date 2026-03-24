@@ -21,7 +21,7 @@ CPCL指令SDK Java版
 <dependency>
     <groupId>com.lingmoyun</groupId>
     <artifactId>cpcl-sdk-java</artifactId>
-    <version>0.2.0</version>
+    <version>0.2.1</version>
 </dependency>
 ```
 
